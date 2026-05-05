@@ -6,6 +6,10 @@
 
 支持批量处理作业文件，提取题目内容，基于codex的imagegen生成仿真手写答案，并自动打包成pdf。
 
+生成样例：<img width="400" height="600" alt="image" src="https://github.com/user-attachments/assets/90979a6b-83ec-4d17-8234-8a332bff3e95" />
+
+
+
 ## 如何使用
 将要处理的作业存在一个文件夹里，将文件地址发给codex并让其调用古法作业.skill做题（不明确说调用有概率不会调用）。
 
