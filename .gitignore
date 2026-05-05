@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Local/generated job outputs
+.tmp_case_split/
+*/_image2_cache/
+*/attachments/
+*/extracted/
+*/prompts/
+*/pages/
+*/image2_manifest.json
+*/page_plan.json
+*/source.*
+*_answer.pdf
+*_answer.docx
+*_page*.png
+*.prompt.txt
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

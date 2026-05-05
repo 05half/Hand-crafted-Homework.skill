@@ -1,0 +1,67 @@
+# 古法作业 skill 配置文件
+# 说明：这个 YAML 是所有脚本的配置源头；脚本会用 package_outputs.py 里的 load_config() 读取它。
+
+# generation：选择默认图片生成方式，以及 imagegen 模式下写入 manifest 的状态文本。
+generation:
+  # default_tool：默认生成器；imagegen 表示由 Codex 内置 image_gen 生成图片。
+  default_tool: "imagegen"
+  # imagegen_status：当 prompt 已经准备好、等待内置 imagegen 处理时写入 manifest 的状态。
+  imagegen_status: "ready_for_imagegen"
+
+# 提示词输入点 1：这里是全局手写风格提示词源头，会被 prompt_template.exact_prompt 引用。
+# handwriting_prompt：真正控制手写风格、纸张样式、潦草程度和禁止元素的主提示词。
+handwriting_prompt: "A4白纸上的手写版答案，选择题和填空题只给结果，简答题简略回答，只包含最主要的公式、中间过程、图片、表格和结果，极端潦草，连笔严重，字迹模糊不清，过程需要包含勾抹、涂改。图像、表格扭曲变形。极端潦草，连笔严重，字迹模糊不清，过程需要包含勾抹、涂改。图像、表格扭曲变形。极端潦草，连笔严重，字迹模糊不清，过程需要包含勾抹、涂改。图像、表格扭曲变形。不同位置出现的相同字母和汉字连笔严重程度、大小、扭曲程度不同。不要加入对号、横杠、方框、题型说明、重点加粗等。笔迹参考另一张图片。"
+
+# prompt_template：提示词模板分组；generate_prompts.py 会读取这里来生成 base_prompt.txt。
+prompt_template:
+  # 提示词输入点 2：generate_prompts.py 会先读取 exact_prompt，再把 {handwriting_prompt} 替换成上面的文本。
+  # exact_prompt：当前只引用 handwriting_prompt；如果要加固定前缀/后缀，可以在这里改。
+  exact_prompt: "{handwriting_prompt}"
+
+# page_planning：在生成每页 imagegen prompt 前，先让 AI 完整做题并评估答案文字量/分页。
+page_planning:
+  # prompt_txt：AI 分页评估提示词落盘文件；代理先读取它做题并创建 output_json。
+  prompt_txt: "page_plan.prompt.txt"
+  # output_json：AI 规划出的页数、每页题目范围和答案大纲；generate_prompts.py 只读取它，不再用硬规则估页数。
+  output_json: "page_plan.json"
+  # prompt：分页评估提示词。要求先做一遍题，再按答案量和可读性决定分几张纸。
+  prompt: "你是作业答案分页规划器。请先完整做一遍题目，只给出每题所需的关键公式、必要过程、必要图像或表格和最终答案，选择题和填空题只给结果；再估算如果写成潦草但可辨认的 A4 手写答案，每页能容纳多少内容，并决定需要几张纸。分页时优先按题目范围和答案连续性分配，不要按固定字数、源文件页数或图片页数机械分页。输出必须是严格 JSON，不要 Markdown，不要解释；格式为 {\"answer_page_count\": 2, \"pages\": [{\"page\": 1, \"question_scope\": \"选择题1-5、填空1-5、计算题3\", \"answer_outline\": \"本页要写的简略答案大纲\", \"estimated_handwritten_chars\": 900}], \"reason\": \"简短说明为什么这样分页\"}。answer_page_count 必须等于 pages 数组长度。"
+
+# output_formats：最终交付格式；当前只允许 PDF。
+output_formats: ["pdf"]
+# input_extensions：允许作为作业源文件输入的扩展名。
+input_extensions: [".png", ".jpg", ".jpeg", ".pdf", ".docx"]
+# grouping：处理粒度；one_file_per_job 表示每个输入文件单独生成一个 job 文件夹。
+grouping: "one_file_per_job"
+
+# output：输出目录配置。
+output:
+  # default_folder：默认在源文件同目录下创建以 job_id 命名的文件夹。
+  default_folder: "{job_id}"
+
+# handwriting_sample：笔迹样例图片配置。
+handwriting_sample:
+  # default_path：默认笔迹样例图片路径，相对于 SKILL.md 所在目录。
+  default_path: "handwriting-example.jpg"
+
+# naming：所有输出文件命名模板；{job_id} 来自源文件名，{page:03} 是三位页码。
+naming:
+  # page_png：生成后的页面 PNG 命名模板。
+  page_png: "{job_id}_page{page:03}.png"
+  # prompt_txt：最终提示词文本文件命名模板。
+  prompt_txt: "{job_id}_page{page:03}.prompt.txt"
+  # pdf：最终交付 PDF 命名模板。
+  pdf: "{job_id}_-114514.pdf"
+  # docx：历史兼容命名；当前 validate_job.py 会把最终 DOCX 视为非预期输出。
+  docx: "{job_id}_-114514.docx"
+
+# prompt_cache：提示词缓存和 manifest 文件名配置。
+prompt_cache:
+  # cache_dir：每个 job 下存放基础提示词和样例图片记录的缓存目录。
+  cache_dir: "_image2_cache"
+  # base_prompt：基础提示词文件名，由 write_base_prompt() 写出。
+  base_prompt: "base_prompt.txt"
+  # sample_manifest：笔迹样例图片记录文件名，包含路径和 SHA-256。
+  sample_manifest: "sample_image.json"
+  # image2_manifest：生成任务 manifest 文件名，记录每页 prompt 和目标 PNG。
+  image2_manifest: "image2_manifest.json"
